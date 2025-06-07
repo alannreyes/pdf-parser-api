@@ -32,7 +32,7 @@ COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules ./node_modules
 
 # Exponer puerto
-EXPOSE 3000
+EXPOSE 5000
 
 # Comando de inicio
 CMD ["node", "dist/main"]
