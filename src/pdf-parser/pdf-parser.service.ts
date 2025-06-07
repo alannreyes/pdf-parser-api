@@ -106,38 +106,37 @@ export class PdfParserService {
     }
   }
 
-private async convertToMarkdown(
-  text: string, 
-  options: ParsePdfDto,
-  clasificacion: any
-): Promise<string> {
-  // Adaptar el prompt según el tipo de PDF
-  let promptAdicional = '';
-  
-  if (clasificacion.tipo === TipoPDF.MIXTO) {
-    promptAdicional = '\nNOTA: Este PDF parece ser un documento mixto con posible texto de OCR. Ten en cuenta posibles errores de reconocimiento.';
-  } else if (clasificacion.tipo === TipoPDF.FORMULARIO) {
-    promptAdicional = '\nNOTA: Este PDF contiene formularios. Intenta preservar la estructura de los campos del formulario.';
-  }
+  private async convertToMarkdown(
+    text: string, 
+    options: ParsePdfDto,
+    clasificacion: any
+  ): Promise<string> {
+    // Adaptar el prompt según el tipo de PDF
+    let promptAdicional = '';
+    
+    if (clasificacion.tipo === TipoPDF.MIXTO) {
+      promptAdicional = '\nNOTA: Este PDF parece ser un documento mixto con posible texto de OCR. Ten en cuenta posibles errores de reconocimiento.';
+    } else if (clasificacion.tipo === TipoPDF.FORMULARIO) {
+      promptAdicional = '\nNOTA: Este PDF contiene formularios. Intenta preservar la estructura de los campos del formulario.';
+    }
 
-  // AGREGAR ESTA PARTE PARA USAR LA CALIDAD DEL TEXTO
-  if (clasificacion.calidadTexto === 'baja') {
-    promptAdicional += '\nNOTA: La calidad del texto extraído es baja. Puede haber errores de OCR o caracteres mal reconocidos.';
-  } else if (clasificacion.calidadTexto === 'sin_texto') {
-    promptAdicional += '\nNOTA: No se detectó texto en el PDF original. El contenido puede estar incompleto.';
-  }
+    if (clasificacion.calidadTexto === 'baja') {
+      promptAdicional += '\nNOTA: La calidad del texto extraído es baja. Puede haber errores de OCR o caracteres mal reconocidos.';
+    } else if (clasificacion.calidadTexto === 'sin_texto') {
+      promptAdicional += '\nNOTA: No se detectó texto en el PDF original. El contenido puede estar incompleto.';
+    }
 
-  const systemPrompt = `Eres un experto en convertir texto de PDF a formato markdown bien estructurado. 
-  Tu tarea es tomar el texto extraído y formatearlo correctamente en markdown, preservando:
-  - Estructura jerárquica (títulos, subtítulos)
-  - Listas y enumeraciones
-  - Tablas (si las hay)
-  - Énfasis (negrita, cursiva)
-  - Enlaces (si los hay)
-  - Bloques de código (si los hay)
-  
-  Mantén el contenido fiel al original pero mejora la legibilidad y estructura.${promptAdicional}`;
-}
+    const systemPrompt = `Eres un experto en convertir texto de PDF a formato markdown bien estructurado. 
+    Tu tarea es tomar el texto extraído y formatearlo correctamente en markdown, preservando:
+    - Estructura jerárquica (títulos, subtítulos)
+    - Listas y enumeraciones
+    - Tablas (si las hay)
+    - Énfasis (negrita, cursiva)
+    - Enlaces (si los hay)
+    - Bloques de código (si los hay)
+    
+    Mantén el contenido fiel al original pero mejora la legibilidad y estructura.${promptAdicional}`;
+
     const userPrompt = `Convierte el siguiente texto de PDF a formato markdown bien estructurado:
     
     ${options.instructions ? `Instrucciones adicionales: ${options.instructions}\n\n` : ''}
