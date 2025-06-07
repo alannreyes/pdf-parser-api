@@ -87,7 +87,7 @@ export class PdfParserService {
 
     try {
       const completion = await this.openai.chat.completions.create({
-        model: this.configService.get('openai.model'),
+  model: this.configService.get<string>('openai.model') || 'gpt-4o',
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt },
@@ -96,7 +96,7 @@ export class PdfParserService {
         temperature: 0.3,
       });
 
-      return completion.choices[0].message.content;
+      return completion.choices[0].message.content || '';
     } catch (error) {
       console.error('OpenAI API error:', error);
       throw new HttpException(
@@ -117,7 +117,7 @@ export class PdfParserService {
 
     try {
       const completion = await this.openai.chat.completions.create({
-        model: this.configService.get('openai.model'),
+  model: this.configService.get<string>('openai.model') || 'gpt-4o',
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: text.substring(0, 8000) }, // Limitar texto para análisis
@@ -127,7 +127,11 @@ export class PdfParserService {
         response_format: { type: "json_object" },
       });
 
-      const analysis = JSON.parse(completion.choices[0].message.content);
+      const content = completion.choices[0].message.content;
+if (!content) {
+  return null;
+}
+const analysis = JSON.parse(content);
       
       return {
         summary: analysis.summary || '',
