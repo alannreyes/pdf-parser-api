@@ -9,8 +9,8 @@ WORKDIR /app
 COPY package*.json ./
 COPY tsconfig*.json ./
 
-# Instalar dependencias
-RUN npm ci
+# Instalar dependencias con legacy-peer-deps para evitar conflictos
+RUN npm ci --legacy-peer-deps
 
 # Copiar código fuente
 COPY . .
@@ -29,7 +29,9 @@ WORKDIR /app
 # Copiar archivos necesarios desde builder
 COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/node_modules ./node_modules
+
+# Instalar solo dependencias de producción
+RUN npm ci --only=production --legacy-peer-deps
 
 # Exponer puerto
 EXPOSE 5000
