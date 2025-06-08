@@ -25,7 +25,41 @@ export class PdfParserService {
       // Primero clasificar el PDF
       const clasificacion = await this.pdfClassifier.clasificarPDF(buffer);
       
-      // Validar si el PDF puede ser procesado
+      // Si el PDF está protegido, devolver respuesta especial en lugar de lanzar error
+      if (clasificacion.tipo === TipoPDF.PROTEGIDO) {
+        this.logger.warn('PDF protegido detectado, devolviendo respuesta especial');
+        return {
+          markdown: '',
+          clasificacion: clasificacion,
+          metadata: {
+            title: 'PDF Protegido',
+            author: null,
+            subject: null,
+            keywords: null,
+            creationDate: null,
+            modificationDate: null,
+            pageCount: 0,
+            isProtected: true,
+            protectionType: 'password_protected'
+          },
+          analysis: {
+            summary: 'Este PDF está protegido con contraseña y no puede ser procesado',
+            mainTopics: [],
+            keyPoints: ['PDF protegido', 'Requiere contraseña'],
+            language: 'unknown',
+            error: 'PDF_PROTECTED'
+          },
+          warnings: [{
+            tipo: 'PDF_PROTEGIDO',
+            mensaje: 'El PDF está protegido y no puede ser procesado sin la contraseña',
+            severidad: 'alta'
+          }],
+          success: false,
+          error: 'PDF_PROTECTED'
+        };
+      }
+
+      // Validar otros casos de procesamiento
       this.validarProcesamiento(clasificacion);
 
       // Extraer texto del PDF
@@ -33,7 +67,8 @@ export class PdfParserService {
       
       const result: any = {
         markdown: '',
-        clasificacion: clasificacion, // Incluir información de clasificación
+        clasificacion: clasificacion,
+        success: true
       };
 
       // Extraer metadatos si se solicita
@@ -66,6 +101,28 @@ export class PdfParserService {
 
       return result;
     } catch (error) {
+      // Si es un error de PDF protegido que no fue capturado antes
+      if (error.message?.toLowerCase().includes('encrypt') || 
+          error.message?.toLowerCase().includes('password') ||
+          error.message?.toLowerCase().includes('protegido')) {
+        this.logger.warn('PDF protegido detectado en catch block');
+        return {
+          markdown: '',
+          metadata: {
+            isProtected: true,
+            error: 'PDF_PROTECTED'
+          },
+          analysis: {
+            summary: 'PDF protegido - no se puede procesar',
+            error: 'PDF_PROTECTED'
+          },
+          success: false,
+          error: 'PDF_PROTECTED',
+          errorMessage: error.message
+        };
+      }
+
+      // Para otros errores, mantener el comportamiento actual
       console.error('Error parsing PDF:', error);
       throw new HttpException(
         'Error al procesar el PDF: ' + error.message,
@@ -94,13 +151,9 @@ export class PdfParserService {
   }
 
   private validarProcesamiento(clasificacion: any) {
-    if (clasificacion.tipo === TipoPDF.PROTEGIDO) {
-      throw new HttpException(
-        'El PDF está protegido y no puede ser procesado',
-        HttpStatus.FORBIDDEN,
-      );
-    }
-
+    // Ya no lanzamos excepción para PDFs protegidos aquí
+    // porque se maneja arriba
+    
     if (clasificacion.tipo === TipoPDF.ESCANEADO && clasificacion.cantidadTexto === 0) {
       this.logger.warn('PDF escaneado sin texto detectado - se requiere OCR');
     }

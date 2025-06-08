@@ -83,11 +83,16 @@ export class PdfParserController {
     try {
       const result = await this.pdfParserService.parsePdf(file.buffer, parsePdfDto);
       
+      // El servicio ahora devuelve una respuesta exitosa para PDFs protegidos
+      // así que simplemente devolvemos el resultado
       return {
         ...result,
         processingTime: Date.now() - startTime,
+        filename: file.originalname,
       };
     } catch (error) {
+      // Solo lanzamos excepción para errores reales
+      // Los PDFs protegidos ya se manejan en el servicio
       throw new HttpException(
         error.message || 'Error al procesar el PDF',
         error.status || HttpStatus.INTERNAL_SERVER_ERROR,
@@ -113,6 +118,7 @@ export class PdfParserController {
       return {
         ...result,
         processingTime: Date.now() - startTime,
+        sourceUrl: body.url,
       };
     } catch (error) {
       throw new HttpException(
