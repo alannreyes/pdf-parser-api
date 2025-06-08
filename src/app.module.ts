@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { PdfParserModule } from './pdf-parser/pdf-parser.module';
 import configuration from './config/configuration';
@@ -10,10 +10,14 @@ import configuration from './config/configuration';
       isGlobal: true,
       load: [configuration],
     }),
-    ThrottlerModule.forRoot([{
-      ttl: 60000,
-      limit: 10,
-    }]),
+    ThrottlerModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ([{
+        ttl: config.get<number>('THROTTLE_TTL', 60) * 1000, // Convertir a milisegundos
+        limit: config.get<number>('THROTTLE_LIMIT', 10),
+      }]),
+    }),
     PdfParserModule,
   ],
 })
