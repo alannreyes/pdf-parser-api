@@ -22,7 +22,7 @@ export class PdfParserService {
     });
 
     // Configurar la cola con límites de rate
-    const rateLimit = this.configService.get('OPENAI_RATE_LIMIT_RPM', 30);
+    const rateLimit = parseInt(this.configService.get('OPENAI_RATE_LIMIT_RPM', '30'), 10);
     this.queue = new PQueue({
       concurrency: 1, // Procesar una petición a la vez
       interval: 60000, // Por minuto
@@ -34,8 +34,8 @@ export class PdfParserService {
 
   // Método auxiliar para llamadas a OpenAI con reintentos
   private async callOpenAIWithRetry(apiCall: () => Promise<any>): Promise<any> {
-    const maxRetries = this.configService.get('OPENAI_MAX_RETRIES', 3);
-    const retryDelay = this.configService.get('OPENAI_RETRY_DELAY', 2000);
+    const maxRetries = parseInt(this.configService.get('OPENAI_MAX_RETRIES', '3'), 10);
+    const retryDelay = parseInt(this.configService.get('OPENAI_RETRY_DELAY', '2000'), 10);
 
     return this.queue.add(async () => {
       for (let attempt = 0; attempt < maxRetries; attempt++) {
