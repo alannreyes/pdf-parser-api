@@ -23,7 +23,7 @@ export class PdfParserController {
   @Post('parse')
   @UseInterceptors(FileInterceptor('file', {
     limits: {
-      fileSize: 10 * 1024 * 1024, // 10MB
+      fileSize: parseInt(process.env.MAX_FILE_SIZE || '52428800'), // Usar variable de entorno
     },
     fileFilter: (req, file, callback) => {
       if (!file.originalname.match(/\.(pdf)$/)) {
@@ -69,6 +69,7 @@ export class PdfParserController {
     type: ParsePdfResponseDto,
   })
   @ApiResponse({ status: 400, description: 'Archivo inválido' })
+  @ApiResponse({ status: 413, description: 'Archivo demasiado grande' })
   @ApiResponse({ status: 500, description: 'Error del servidor' })
   async parsePdf(
     @UploadedFile() file: Express.Multer.File,
