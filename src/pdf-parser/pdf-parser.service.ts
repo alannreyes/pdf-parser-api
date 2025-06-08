@@ -58,7 +58,7 @@ export class PdfParserService {
     return this.queue.add(async () => {
       for (let attempt = 0; attempt < maxRetries; attempt++) {
         try {
-          this.logger.debug(`Llamando a OpenAI (intento ${attempt + 1}/${maxRetries})`);
+          
           return await apiCall();
         } catch (error) {
           this.logger.error(`Error en OpenAI (intento ${attempt + 1}/${maxRetries}):`, error.message);
@@ -249,19 +249,19 @@ export class PdfParserService {
   ): boolean {
     // Si OpenAI está deshabilitado globalmente
     if (!this.openAIEnabled) {
-      this.logger.debug('OpenAI deshabilitado, usando procesamiento local');
+      
       return true;
     }
     
     // Si se solicita específicamente procesamiento local
     if (options.useLocalProcessing) {
-      this.logger.debug('Procesamiento local solicitado en opciones');
+      
       return true;
     }
     
     // Si el default es usar procesamiento local
     if (this.localProcessingDefault) {
-      this.logger.debug('Procesamiento local por defecto');
+      
       return true;
     }
     
@@ -269,31 +269,31 @@ export class PdfParserService {
     if (this.localProcessingForComplex) {
       // PDFs protegidos siempre local
       if (clasificacion.tipo === TipoPDF.PROTEGIDO) {
-        this.logger.debug('PDF protegido, usando procesamiento local');
+      
         return true;
       }
       
       // PDFs escaneados sin texto
       if (clasificacion.tipo === TipoPDF.ESCANEADO && (!text || text.length === 0)) {
-        this.logger.debug('PDF escaneado sin texto, usando procesamiento local');
+      
         return true;
       }
       
       // PDFs con calidad de texto muy baja
       if (clasificacion.calidadTexto === 'baja' || clasificacion.calidadTexto === 'sin_texto') {
-        this.logger.debug(`Calidad de texto ${clasificacion.calidadTexto}, usando procesamiento local`);
+      
         return true;
       }
       
       // Textos muy largos que pueden causar timeout
       if (text.length > this.maxTextLength) {
-        this.logger.debug(`Texto muy largo (${text.length} > ${this.maxTextLength}), usando procesamiento local`);
+      
         return true;
       }
       
       // PDFs mixtos con OCR problemático
       if (clasificacion.tipo === TipoPDF.MIXTO && clasificacion.requiereOCR) {
-        this.logger.debug('PDF mixto que requiere OCR, usando procesamiento local');
+      
         return true;
       }
     }
@@ -304,7 +304,7 @@ export class PdfParserService {
                      clasificacion.calidadTexto === 'alta' &&
                      text.length < this.maxTextLength;
       
-      this.logger.debug(`useForSimplePdfsOnly activado, useGPT=${useGPT}`);
+      
       return !useGPT;
     }
     
