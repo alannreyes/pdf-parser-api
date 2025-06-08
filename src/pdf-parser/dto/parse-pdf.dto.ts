@@ -40,31 +40,14 @@ export class ParsePdfDto {
   @Min(100)
   @Max(8000)
   maxTokens?: number = 4000;
-}
 
-export class ParsePdfResponseDto {
-  @ApiProperty({ description: 'Contenido en formato markdown' })
-  markdown: string;
-
-  @ApiProperty({ description: 'Metadatos del PDF', required: false })
-  metadata?: {
-    title?: string;
-    author?: string;
-    subject?: string;
-    keywords?: string;
-    creationDate?: Date;
-    modificationDate?: Date;
-    pageCount?: number;
-  };
-
-  @ApiProperty({ description: 'Análisis del contenido', required: false })
-  analysis?: {
-    summary?: string;
-    mainTopics?: string[];
-    keyPoints?: string[];
-    language?: string;
-  };
-
-  @ApiProperty({ description: 'Tiempo de procesamiento en ms' })
-  processingTime: number;
+  // AGREGAR ESTA PROPIEDAD:
+  @ApiProperty({ 
+    description: 'Usar procesamiento local en lugar de OpenAI',
+    default: false,
+    required: false 
+  })
+  @IsOptional()
+  @IsBoolean()
+  useLocalProcessing?: boolean = false;
 }

@@ -513,7 +513,7 @@ export class PdfParserService {
   }
 
   // Análisis local del contenido
-  private async analyzeContentLocally(text: string, clasificacion: ResultadoClasificacion): any {
+  private async analyzeContentLocally(text: string, clasificacion: ResultadoClasificacion): Promise<any> {
     const lines = text.split('\n').filter(l => l.trim());
     
     // Detectar tipo de documento
