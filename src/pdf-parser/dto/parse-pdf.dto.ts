@@ -51,3 +51,29 @@ export class ParsePdfDto {
   @IsBoolean()
   useLocalProcessing?: boolean = false;
 }
+export class ParsePdfResponseDto {
+  @ApiProperty({ description: 'Contenido en formato markdown' })
+  markdown: string;
+
+  @ApiProperty({ description: 'Metadatos del PDF', required: false })
+  metadata?: {
+    title?: string;
+    author?: string;
+    subject?: string;
+    keywords?: string;
+    creationDate?: Date;
+    modificationDate?: Date;
+    pageCount?: number;
+  };
+
+  @ApiProperty({ description: 'Análisis del contenido', required: false })
+  analysis?: {
+    summary?: string;
+    mainTopics?: string[];
+    keyPoints?: string[];
+    language?: string;
+  };
+
+  @ApiProperty({ description: 'Tiempo de procesamiento en ms' })
+  processingTime: number;
+}
