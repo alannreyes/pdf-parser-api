@@ -79,6 +79,7 @@ export class PdfParserController {
       throw new HttpException('No se proporcionó ningún archivo', HttpStatus.BAD_REQUEST);
     }
 
+    console.log(`Procesando archivo: ${file.originalname}, tamaño: ${file.size} bytes (${(file.size / 1024 / 1024).toFixed(2)}MB)`);
     const startTime = Date.now();
 
     try {
