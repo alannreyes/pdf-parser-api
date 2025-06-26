@@ -1,14 +1,16 @@
-# PDF Parser API
+# Extractor API
 
-API REST construida por Alann Reyes con NestJS para extraer y convertir contenido de PDFs a formato Markdown usando GPT-4o.
+API REST construida por Alann Reyes con NestJS para extraer datos específicos de documentos legales usando IA, con integración a base de datos MySQL para prompts y configuraciones personalizadas por cliente.
 
 ## 🚀 Características
 
-- ✅ Extracción de texto de PDFs
-- ✅ Conversión inteligente a Markdown usando GPT-4o
-- ✅ Análisis de contenido (resumen, temas principales, puntos clave)
-- ✅ Extracción de metadatos
-- ✅ Soporte para PDFs desde URL
+- ✅ Extracción de datos específicos de documentos legales
+- ✅ Integración con base de datos MySQL para configuraciones
+- ✅ Prompts y ejemplos personalizados por cliente
+- ✅ Formato JSON específico de salida
+- ✅ Campos configurables desde base de datos
+- ✅ Procesamiento inteligente usando GPT-4o
+- ✅ Soporte para documentos desde URL
 - ✅ Rate limiting integrado
 - ✅ Documentación Swagger automática
 - ✅ Listo para Docker y Easypanel
@@ -16,14 +18,15 @@ API REST construida por Alann Reyes con NestJS para extraer y convertir contenid
 ## 📋 Requisitos
 
 - Node.js 18+
+- MySQL Database
 - OpenAI API Key
 
 ## 🛠️ Instalación
 
 1. Clonar el repositorio:
 \`\`\`bash
-git clone https://github.com/tu-usuario/pdf-parser-api.git
-cd pdf-parser-api
+git clone https://github.com/alannreyes/extractor-api.git
+cd extractor-api
 \`\`\`
 
 2. Instalar dependencias:
@@ -34,7 +37,7 @@ npm install
 3. Configurar variables de entorno:
 \`\`\`bash
 cp .env.example .env
-# Editar .env con tu OPENAI_API_KEY
+# Editar .env con tu OPENAI_API_KEY y configuración de MySQL
 \`\`\`
 
 4. Ejecutar en desarrollo:
@@ -42,46 +45,52 @@ cp .env.example .env
 npm run start:dev
 \`\`\`
 
+## 🗄️ Base de Datos
+
+Este proyecto utiliza una base de datos MySQL existente que contiene:
+- Nombres específicos de archivos y configuraciones
+- Prompts personalizados por cliente
+- Ejemplos sugeridos para cada tipo de documento
+- Definición de campos JSON de respuesta
+- Configuraciones de extracción por tipo de documento legal
+
 ## 🐳 Docker
 
 Construir imagen:
 \`\`\`bash
-docker build -t pdf-parser-api .
+docker build -t extractor-api .
 \`\`\`
 
 Ejecutar contenedor:
 \`\`\`bash
-docker run -p 3000:3000 --env-file .env pdf-parser-api
+docker run -p 3000:3000 --env-file .env extractor-api
 \`\`\`
 
 ## 📖 Uso de la API
 
 ### Endpoint principal
 \`\`\`
-POST /pdf/parse
+POST /extract
 Content-Type: multipart/form-data
 
 Body:
-- file: archivo PDF
-- includeAnalysis: boolean (opcional)
-- extractMetadata: boolean (opcional)
-- instructions: string (opcional)
+- file: archivo de documento legal
+- clientId: ID del cliente (para obtener configuración específica)
+- documentType: tipo de documento legal
 \`\`\`
 
 ### Respuesta
 \`\`\`json
 {
-  "markdown": "# Contenido del PDF...",
+  "extractedData": {
+    // Campos específicos según configuración del cliente
+    // Solo incluye campos con información encontrada
+  },
   "metadata": {
-    "title": "Título",
-    "pageCount": 10
-  },
-  "analysis": {
-    "summary": "Resumen del contenido",
-    "mainTopics": ["tema1", "tema2"],
-    "keyPoints": ["punto1", "punto2"]
-  },
-  "processingTime": 2500
+    "documentType": "contract",
+    "clientId": "client-123",
+    "processingTime": 2500
+  }
 }
 \`\`\`
 
@@ -89,7 +98,7 @@ Body:
 
 Esta API está optimizada para integrarse con n8n. Simplemente usa un nodo HTTP Request con:
 - Method: POST
-- URL: http://tu-api/pdf/parse
+- URL: http://tu-api/extract
 - Body: Multipart Form Data
 
 ## 📝 Documentación
@@ -100,7 +109,7 @@ Swagger UI disponible en: `http://localhost:3000/api`
 
 1. Fork este repositorio
 2. En Easypanel, crear nueva app desde GitHub
-3. Configurar variables de entorno
+3. Configurar variables de entorno (incluyendo MySQL)
 4. Deploy!
 
 ## 📄 Licencia
